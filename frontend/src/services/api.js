@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getSession } from './session';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
@@ -8,9 +9,10 @@ const api = axios.create({
   timeout: 10000,
 });
 
-export const getHealthStatus = async () => {
-  const response = await api.get('/health');
-  return response.data;
-};
+api.interceptors.request.use((config) => {
+  const token = getSession()?.token;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
 export default api;
